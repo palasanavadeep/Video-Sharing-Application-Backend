@@ -1,6 +1,7 @@
 import connectDB from "./db/index.js";
 import {app} from "./app.js";
 
+// start the server after connecting to db
 connectDB()
 .then(()=>{
     let port = process.env.PORT || 8000;
