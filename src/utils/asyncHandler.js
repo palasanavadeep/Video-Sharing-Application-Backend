@@ -12,7 +12,7 @@ const asyncHandler = (fun) => {
 //     } catch (error) {
 //         console.log("ERROR IN asyncHandler() :: ",error);
 //         res.status(error.code || 500).json({
-//             sucess : false,
+//             success : false,
 //             message : error.message
 //         })
 //     }
