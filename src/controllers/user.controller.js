@@ -190,6 +190,7 @@ const logoutUser = asyncHandler(async (req,res) => {
 
 })
 
+// ge-Gen refresh and access tokens
 const refreshAccessToken = asyncHandler(async(req,res) => {
     const clientRefreshToken = req.cookies?.refreshToken || req.body.refreshToken;
 
@@ -280,8 +281,154 @@ const refreshAccessToken = asyncHandler(async(req,res) => {
     // }
 
 })
-export {registerUser,
+
+const changePassword = asyncHandler(async(req,res) => {
+    const { oldPassword, newPassword } = req.body;
+
+    if(!(oldPassword || newPassword)){
+        throw new ApiError(401,'Password is Required..!');
+    }
+
+    const user = await User.findById(req.user?._id);
+    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+
+    if(!isPasswordCorrect){
+        throw new ApiError(401,'Invalid password');
+    }
+
+    user.password = newPassword;
+    await user.save({validateBeforeSave:false});
+
+    return res
+        .status(200)
+        .json(new ApiResponse(
+            200,
+            {},
+            "Password Updated Successfully",
+        ))
+})
+
+// verifyJWT (middleware) injects user into request object
+const getCurrentUser = asyncHandler(async(req,res) => {
+    return res
+        .status(200)
+        .json(new ApiResponse(
+            200,
+            req.user,
+            "Current User fetched Successfully"
+        ))
+})
+
+const updateAccountDetails = asyncHandler(async(req,res) => {
+    const {fullName , email } = req.body;
+
+    if(!fullName || !email ){
+        throw new ApiError(401,'Please Provide fullName or email');
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set : {
+                fullName,
+                email
+            }
+        },
+        {
+            new : true
+        }
+    ).select('-password -refreshToken');
+
+    return res
+        .status(200)
+        .json(new ApiResponse(
+            200,
+            user,
+            "Account Details Updated Successfully",
+        ))
+})
+
+const updateUserAvatar = asyncHandler(async(req,res) => {
+
+    const avatarLocalPath = req.file?.avatar;
+
+    if(!avatarLocalPath){
+        throw new ApiError(401,'Please Provide avatar');
+    }
+
+    const avatar = await uploadOnCloudinary(avatarLocalPath);
+
+    if(!avatar){
+        throw new ApiError(500,'Error in uploading avatar on Cloudinary');
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set : {
+                avatar : avatar?.url
+            }
+        },
+        {
+            new : true
+        }
+    ).select('-password')
+
+    return res
+        .status(200)
+        .json(new ApiResponse(
+            200,
+            user,
+            "Avatar Updated Successfully",
+        ))
+})
+
+const updateUserCoverImage = asyncHandler(async(req,res) => {
+    const coverImageLocalPath = req.file?.coverImage;
+
+    if(!coverImageLocalPath){
+        throw new ApiError(401,'Please Provide coverImage');
+    }
+
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+
+    if(!coverImage){
+        throw new ApiError(500,'Error in uploading coverImage on Cloudinary');
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set : {
+                coverImage : coverImage?.url
+            }
+        },
+        {
+            new : true
+        }
+    ).select('-password');
+
+    return res
+        .status(200)
+        .json(new ApiResponse(
+            200,
+            user,
+            "coverImage Updated Successfully",
+        ))
+})
+
+
+
+
+export {
+    registerUser,
     loginUser,
     logoutUser,
-    refreshAccessToken
+    refreshAccessToken,
+    changePassword,
+    getCurrentUser,
+    updateAccountDetails,
+    updateUserAvatar,
+    updateUserCoverImage,
+
 }
