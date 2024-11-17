@@ -311,6 +311,9 @@ const changePassword = asyncHandler(async(req,res) => {
 
 // verifyJWT (middleware) injects user into request object
 const getCurrentUser = asyncHandler(async(req,res) => {
+    if(!req.user){
+        throw new ApiError(401,'Unauthorized access token');
+    }
     return res
         .status(200)
         .json(new ApiResponse(
@@ -351,7 +354,8 @@ const updateAccountDetails = asyncHandler(async(req,res) => {
 
 const updateUserAvatar = asyncHandler(async(req,res) => {
 
-    const avatarLocalPath = req.file?.avatar;
+    const avatarLocalPath = req.file?.path;
+    console.log(avatarLocalPath);
 
     if(!avatarLocalPath){
         throw new ApiError(401,'Please Provide avatar');
@@ -387,7 +391,7 @@ const updateUserAvatar = asyncHandler(async(req,res) => {
 })
 
 const updateUserCoverImage = asyncHandler(async(req,res) => {
-    const coverImageLocalPath = req.file?.coverImage;
+    const coverImageLocalPath = req.file?.path;
 
     if(!coverImageLocalPath){
         throw new ApiError(401,'Please Provide coverImage');
@@ -432,7 +436,7 @@ const getUserChannelProfile = asyncHandler(async(req,res) => {
     const channel = await User.aggregate([
         {
             $match:{
-                username : username.lowercase()
+                username : username.toLowerCase()
             }
         },
         {
@@ -461,9 +465,9 @@ const getUserChannelProfile = asyncHandler(async(req,res) => {
                 },
                 isSubscribed : {
                     $cond : {
-                        $if : {$in : [req.user?._id,"$subscribers.subscriber"]},
-                        $then : true,
-                        $else : false
+                        if : {$in : [req.user?._id,"$subscribers.subscriber"]},
+                        then : true,
+                        else : false
                     }
                 }
             }
@@ -482,7 +486,7 @@ const getUserChannelProfile = asyncHandler(async(req,res) => {
         }
     ]);
 
-    console.log(channel);
+    // console.log(channel);
 
     if(!channel?.length){
         throw new ApiError(401,'Please Provide valid channel');
@@ -499,7 +503,7 @@ const getUserChannelProfile = asyncHandler(async(req,res) => {
 })
 
 const getUserWatchHistory =  asyncHandler(async (req,res) => {
-    const user = User.aggregate([
+    const user = await  User.aggregate([
         {
             $match : {
                 _id : new mongoose.Types.ObjectId(req.user._id)
@@ -529,7 +533,7 @@ const getUserWatchHistory =  asyncHandler(async (req,res) => {
                             ]
                         }
                     },
-                    // add first element of array 
+                    // add first element of array
                     {
                         $addFields : {
                             owner : {
@@ -541,6 +545,9 @@ const getUserWatchHistory =  asyncHandler(async (req,res) => {
             }
         }
     ]);
+
+
+    // console.log(user)
 
     if(!user?.length){
         throw new ApiError("Unable to fetch user Watch History !")
