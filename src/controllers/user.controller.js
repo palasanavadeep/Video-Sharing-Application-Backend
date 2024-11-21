@@ -2,7 +2,7 @@ import {asyncHandler} from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js";
 import {User} from "../models/user.model.js"
-import {uploadOnCloudinary} from "../utils/cloudinary.js";
+import {deleteFromCloudinary, uploadOnCloudinary} from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 
@@ -363,7 +363,16 @@ const updateUserAvatar = asyncHandler(async(req,res) => {
 
     const avatar = await uploadOnCloudinary(avatarLocalPath);
 
-    // TODO : Delete old avatar image
+    const userResponse = await User.findById(req.user?._id)
+
+    if(!UserResponse){
+        throw new ApiError(401,"User Not Found")
+    }
+    const delOldAvatar = await deleteFromCloudinary(userResponse.avatar);
+
+    if(!delOldAvatar){
+        throw new ApiError(401,"Error in deleting Old Avatar");
+    }
 
     if(!avatar){
         throw new ApiError(500,'Error in uploading avatar on Cloudinary');
@@ -403,7 +412,16 @@ const updateUserCoverImage = asyncHandler(async(req,res) => {
         throw new ApiError(500,'Error in uploading coverImage on Cloudinary');
     }
 
-    // TODO : Delete old cover image
+    const userResponse = await User.findById(req.user?._id)
+
+    if(!UserResponse){
+        throw new ApiError(401,"User Not Found")
+    }
+    const delOldCoverImage = await deleteFromCloudinary(userResponse.coverImage);
+
+    if(!delOldAvatar){
+        throw new ApiError(401,"Error in deleting Old coverImage");
+    }
 
     const user = await User.findByIdAndUpdate(
         req.user?._id,
@@ -424,6 +442,7 @@ const updateUserCoverImage = asyncHandler(async(req,res) => {
             user,
             "coverImage Updated Successfully",
         ))
+
 })
 
 const getUserChannelProfile = asyncHandler(async(req,res) => {
