@@ -49,7 +49,6 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
         ))
 });
 
-
 const toggleCommentLike = asyncHandler(async (req, res) => {
     const {commentId} = req.params
 
@@ -146,8 +145,7 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
                 "Unliked Tweet Successfully"
             ))
 
-    }
-)
+})
 
 const getLikedVideos = asyncHandler(async (req, res) => {
 
@@ -167,7 +165,7 @@ const getLikedVideos = asyncHandler(async (req, res) => {
                 from : "users",
                 localField : "likedBy",
                 foreignField : "_id",
-                as : "owner",
+                as : "likedBy",
                 pipeline : [
                     {
                         $project : {
@@ -178,6 +176,9 @@ const getLikedVideos = asyncHandler(async (req, res) => {
                     }
                 ]
             }
+        },
+        {
+            $unwind : "$likedBy"
         },
         {
             $lookup : {
@@ -224,18 +225,22 @@ const getLikedVideos = asyncHandler(async (req, res) => {
             }
         },
         {
-            $addFields : {
-                likedVideos : {
-                    $first : "$likedVideos",
-                },
-                owner : {
-                    $first : "$owner",
-                }
-            }
+            $unwind : "$likedVideos"
         },
+        // {
+        //     $addFields : {
+        //         likedBy : {
+        //             $first : "$likedBy",
+        //         },
+        //         owner : {
+        //             $first : "$owner",
+        //         }
+        //     }
+        // },
         {
             $project : {
-                owner : 1,
+                _id : 0,
+                likedBy : 1,
                 likedVideos : 1,
             }
         }

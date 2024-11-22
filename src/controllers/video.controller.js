@@ -5,20 +5,21 @@ import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {uploadOnCloudinary,deleteFromCloudinary} from "../utils/cloudinary.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
+import {loginUser} from "./user.controller.js";
 
 
 const getAllVideos = asyncHandler(async (req, res) => {
-    const { page = 1,
-        limit = 10,
+    let { page=1,
+        limit=10,
         query="",
         sortBy,
         sortType,
         userId } = req.query
     //TODO: get all videos based on query, sort, pagination
-
-    if(!userId || !isValidObjectId(userId)){}
-
-    const videos = Video.aggregate([
+    limit = parseInt(limit)
+    page = parseInt(page)
+    // console.log(typeof limit)
+    const videos = await Video.aggregate([
         {
             $match : {
                $or : [
@@ -30,7 +31,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
                    },
                    // check -----
                    {
-                       username : new mongoose.Types.ObjectId(userId),
+                       owner : userId || "",
                    }
                ]
             }
@@ -52,12 +53,15 @@ const getAllVideos = asyncHandler(async (req, res) => {
                 ]
             }
         },
+        // {
+        //     $addFields : {
+        //         owner : {
+        //             $first : "$owner",
+        //         }
+        //     }
+        // },
         {
-            $addFields : {
-                owner : {
-                    $first : "$owner",
-                }
-            }
+            $unwind : "$owner"
         },
         {
             $project : {
@@ -77,8 +81,9 @@ const getAllVideos = asyncHandler(async (req, res) => {
         {
             $skip : (page - 1) * limit,
         },
+
         {
-            $limit : parseInt(limit.toString())
+            $limit : limit
         }
     ]);
 
@@ -157,10 +162,22 @@ const getVideoById = asyncHandler(async (req, res) => {
         throw new ApiError(402,"provide a valid videoId.");
     }
 
+    await Video.findByIdAndUpdate(
+        videoId,
+        {
+           $inc : {
+               views : 1
+           }
+        },
+        {
+            new :true
+        }
+    )
+
     const video = await Video.aggregate([
         {
             $match : {
-                videoFile : new mongoose.Types.ObjectId(videoId),
+                _id : new mongoose.Types.ObjectId(videoId),
             }
         },
         {
@@ -218,7 +235,7 @@ const updateVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params
     //TODO: update video details like title, description, thumbnail
 
-    const {title , description } = req.body;
+    let {title , description } = req.body;
 
     const thumbnailLocalPath = req.file?.path;
 
@@ -233,7 +250,7 @@ const updateVideo = asyncHandler(async (req, res) => {
         throw  new ApiError(401,"Video not found Please provide a valid videoId.");
     }
 
-    if(videoCheck.owner !== req.user?._id){
+    if(videoCheck.owner.toString() !== req.user?._id.toString()){
         throw new ApiError(401,"You are not Authorized to Update this Video");
     }
 
@@ -243,39 +260,20 @@ const updateVideo = asyncHandler(async (req, res) => {
     }
 
     const delResponse = await deleteFromCloudinary(videoCheck.thumbnail);
+    console.log(delResponse)
     if(!delResponse){
         throw new ApiError(500,"Error in deleting Old thumbnail from Cloudinary");
     }
+
+    title = title.trim() ? title : videoCheck.title;
+    description = description.trim() ? description : videoCheck.description
 
     const updatedVideo = await Video.findByIdAndUpdate(
         videoId,
         {
             $set : {
-                title : {
-                    $cond : {
-                        if : {
-                            $and : [
-                                {$ne : ["$title",null]},
-                                {$ne: ["$title", ""]},
-                            ]
-                        },
-                        then : title.trim(),
-                        else : "$title"
-                    }
-                },
-                description : {
-                    $cond : {
-                        if : {
-                            $and : [
-                                {$ne : ["$description",null]},
-                                {$ne: ["description", ""]},
-                            ]
-                        },
-                        then : description.trim(),
-                        else : "$description"
-                    }
-                },
-
+                title,
+                description,
                 thumbnail : cloudinaryThumbnail.url
             }
         },
@@ -296,7 +294,6 @@ const updateVideo = asyncHandler(async (req, res) => {
 // delete fom cloudinary--------
 const deleteVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params
-    //TODO: delete video
 
     if(!videoId || !isValidObjectId(videoId)){
         throw new ApiError(401,"Invalid Video ID");
@@ -308,11 +305,12 @@ const deleteVideo = asyncHandler(async (req, res) => {
         throw new ApiError(400,"Video Not Found")
     }
 
-    if(video.owner !== req.user?._id){
+    if(video.owner.toString() !== req.user?._id.toString()){
         throw new ApiError(401,"You are not Authorized to Delete this Video");
     }
 
     const delOldVideoThumbnail = await deleteFromCloudinary(video.thumbnail);
+    // console.log(delOldVideoThumbnail)
     if(!delOldVideoThumbnail){
         throw new ApiError(500,"Error in deleting Old Thumbnail");
     }
@@ -351,7 +349,7 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
         throw new ApiError(401,"Video Not Found.!");
     }
 
-    if(video.owner !== req.user?._id){
+    if(video.owner.toString() !== req.user?._id.toString()){
         throw new ApiError(401,"You are not Authorized to Toggle" +
             " the Video Status");
     }

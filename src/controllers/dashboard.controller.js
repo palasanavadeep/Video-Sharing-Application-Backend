@@ -84,11 +84,24 @@ const getChannelStats = asyncHandler(async (req, res) => {
             }
         },
         {
+            $addFields : {
+                videos : {
+                    $first : "$videos"
+                },
+                tweets : {
+                    $first : "$tweets",
+                },
+                comments : {
+                    $first : "$comments",
+                }
+            }
+        },
+        {
             $match : {
                 $or : [
-                    { "$videos.owner" : userId},
-                    { "$tweets.owner" : userId},
-                    { "$comments.owner" : userId},
+                    { "videos.owner" : userId},
+                    { "tweets.owner" : userId},
+                    { "comments.owner" : userId},
                 ]
             }
         },

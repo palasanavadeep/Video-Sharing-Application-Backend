@@ -365,14 +365,11 @@ const updateUserAvatar = asyncHandler(async(req,res) => {
 
     const userResponse = await User.findById(req.user?._id)
 
-    if(!UserResponse){
+    if(!userResponse){
         throw new ApiError(401,"User Not Found")
     }
     const delOldAvatar = await deleteFromCloudinary(userResponse.avatar);
-
-    if(!delOldAvatar){
-        throw new ApiError(401,"Error in deleting Old Avatar");
-    }
+    // console.log(delOldAvatar);
 
     if(!avatar){
         throw new ApiError(500,'Error in uploading avatar on Cloudinary');
@@ -414,14 +411,12 @@ const updateUserCoverImage = asyncHandler(async(req,res) => {
 
     const userResponse = await User.findById(req.user?._id)
 
-    if(!UserResponse){
+    if(!userResponse){
         throw new ApiError(401,"User Not Found")
     }
+    // doesn't return empty obj if File not found
     const delOldCoverImage = await deleteFromCloudinary(userResponse.coverImage);
 
-    if(!delOldAvatar){
-        throw new ApiError(401,"Error in deleting Old coverImage");
-    }
 
     const user = await User.findByIdAndUpdate(
         req.user?._id,

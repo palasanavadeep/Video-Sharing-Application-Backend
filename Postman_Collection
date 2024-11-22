@@ -1,0 +1,1249 @@
+{
+	"info": {
+		"_postman_id": "dd22787c-57e2-4fab-9722-d8890fb4ba62",
+		"name": "backendProject",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38695492"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "registration",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "fullName",
+									"value": "shashank koppula",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "shashank",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "shashank@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "shashank",
+									"type": "text"
+								},
+								{
+									"key": "avatar",
+									"type": "file",
+									"src": "/D:/BackendProject/Z-test-images/avatar-2.jpeg"
+								},
+								{
+									"key": "coverImage",
+									"type": "file",
+									"src": "/D:/BackendProject/Z-test-images/coverImage-2.jpeg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{server}}/user/register",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"user",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\" : \"navadeep@gmail.com\",\r\n    \"username\" : \"navadeep\",\r\n    \"password\" : \"navadeep\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server}}/user/login",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"user",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server}}/user/logout",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"user",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "refresh-Tokens",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server}}/user/refresh-tokens",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"user",
+								"refresh-tokens"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "change Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"oldPassword\" : \"nav@2005\",\r\n    \"newPassword\" : \"nav@123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server}}/user/change-password",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"user",
+								"change-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Current User",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server}}/user/current-user",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"user",
+								"current-user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Profile",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"fullName\" : \"palasa navadeep\",\r\n    \"email\" : \"nav@gmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server}}/user/update-profile",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"user",
+								"update-profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Avatar",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "avatar",
+									"type": "file",
+									"src": "/D:/BackendProject/Z-test-images/avatar1.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{server}}/user/update-avatar",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"user",
+								"update-avatar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Cover Image",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "coverImage",
+									"type": "file",
+									"src": "/D:/BackendProject/Z-test-images/coverImage1.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{server}}/user/update-coverImage",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"user",
+								"update-coverImage"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "History",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server}}/user/watch-history",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"user",
+								"watch-history"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Channel Profile",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server}}/user/c/:username",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"user",
+								"c",
+								":username"
+							],
+							"variable": [
+								{
+									"key": "username",
+									"value": "navadeep"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "tweets",
+			"item": [
+				{
+					"name": "Create Tweet",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"content\" : \"shashi tweet 2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server}}/tweets/",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"tweets",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Tweets",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server}}/tweets/user/:userId",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"tweets",
+								"user",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "67408064cbf7c46881132a74"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update Tweet",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"content\" : \"updated shashi tweet 2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server}}/tweets/:tweetId",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"tweets",
+								":tweetId"
+							],
+							"variable": [
+								{
+									"key": "tweetId",
+									"value": "6740817fcbf7c46881132a83"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete Tweet",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{server}}/tweets/:tweetId",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"tweets",
+								":tweetId"
+							],
+							"variable": [
+								{
+									"key": "tweetId",
+									"value": "674081eccbf7c46881132a8d"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Comments",
+			"item": [
+				{
+					"name": "delete Comment",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{server}}/comments/c/:commentId",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"comments",
+								"c",
+								":commentId"
+							],
+							"variable": [
+								{
+									"key": "commentId",
+									"value": "674086cc7abb3600da21f541"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update Comment",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"content\" : \"updated shashi commnet 3\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server}}/comments/c/:commentId",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"comments",
+								"c",
+								":commentId"
+							],
+							"variable": [
+								{
+									"key": "commentId",
+									"value": "674086cc7abb3600da21f541"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get Video Comments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server}}/comments/:videoId?page=1&limit=10",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"comments",
+								":videoId"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							],
+							"variable": [
+								{
+									"key": "videoId",
+									"value": "674082e6cbf7c46881132a93"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Comment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"content\" : \"shashi commnet 3\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server}}/comments/:videoId",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"comments",
+								":videoId"
+							],
+							"variable": [
+								{
+									"key": "videoId",
+									"value": "674082e6cbf7c46881132a93"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Playlist",
+			"item": [
+				{
+					"name": "Create Playlist",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\" : \"shashi playlist 2\",\r\n    \"description\" : \" shashi playlist 2 description\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server}}/playlist/",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"playlist",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Playlist by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server}}/playlist/:playlistId",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"playlist",
+								":playlistId"
+							],
+							"variable": [
+								{
+									"key": "playlistId",
+									"value": "67408dea45b2062cf9e50036"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Playlist",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\" : \"nav\",\r\n    \"description\" : \" dec\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server}}/playlist/:playlistId",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"playlist",
+								":playlistId"
+							],
+							"variable": [
+								{
+									"key": "playlistId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Playlist",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{server}}/playlist/:playlistId",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"playlist",
+								":playlistId"
+							],
+							"variable": [
+								{
+									"key": "playlistId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Video to Playlist",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{server}}/playlist/add/:videoId/:playlistId",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"playlist",
+								"add",
+								":videoId",
+								":playlistId"
+							],
+							"variable": [
+								{
+									"key": "videoId",
+									"value": "674082e6cbf7c46881132a93"
+								},
+								{
+									"key": "playlistId",
+									"value": "67408db745b2062cf9e50032"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Video to Playlist",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{server}}/playlist/remove/:videoId/:playlistId",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"playlist",
+								"remove",
+								":videoId",
+								":playlistId"
+							],
+							"variable": [
+								{
+									"key": "videoId",
+									"value": "674082e6cbf7c46881132a93"
+								},
+								{
+									"key": "playlistId",
+									"value": "67408db745b2062cf9e50032"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get user  Playlist",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server}}/playlist/user/:userId",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"playlist",
+								"user",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "67408064cbf7c46881132a74"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Likes",
+			"item": [
+				{
+					"name": "Toggle Video Like",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{server}}/like/toggle/v/:videoId",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"like",
+								"toggle",
+								"v",
+								":videoId"
+							],
+							"variable": [
+								{
+									"key": "videoId",
+									"value": "674082e6cbf7c46881132a93"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Toggle Comment Like",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{server}}/like/toggle/c/:commentId",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"like",
+								"toggle",
+								"c",
+								":commentId"
+							],
+							"variable": [
+								{
+									"key": "commentId",
+									"value": "674086bb7abb3600da21f539"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Toggle Tweet Like",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{server}}/like/toggle/t/:tweetId",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"like",
+								"toggle",
+								"t",
+								":tweetId"
+							],
+							"variable": [
+								{
+									"key": "tweetId",
+									"value": "673f89ad51bb868796d9472d"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Liked Videos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server}}/like/videos",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"like",
+								"videos"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Subscription",
+			"item": [
+				{
+					"name": "Subscribed Channels",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server}}/subscription/c/:channelId",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"subscription",
+								"c",
+								":channelId"
+							],
+							"variable": [
+								{
+									"key": "channelId",
+									"value": "6740800bcbf7c46881132a70"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "toggle Subscription",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{server}}/subscription/c/:channelId",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"subscription",
+								"c",
+								":channelId"
+							],
+							"variable": [
+								{
+									"key": "channelId",
+									"value": "67409766978bd6b88d469d1d"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "userChannels Subscribers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server}}/subscription/u/:subscriberId",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"subscription",
+								"u",
+								":subscriberId"
+							],
+							"variable": [
+								{
+									"key": "subscriberId",
+									"value": "67408064cbf7c46881132a74"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Videos",
+			"item": [
+				{
+					"name": "Get All Videos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server}}/video/?page=1&limit=10&query=shashi&sortBy=duration&sortType=asc&userId=67408064cbf7c46881132a74",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"video",
+								""
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "query",
+									"value": "shashi"
+								},
+								{
+									"key": "sortBy",
+									"value": "duration"
+								},
+								{
+									"key": "sortType",
+									"value": "asc"
+								},
+								{
+									"key": "userId",
+									"value": "67408064cbf7c46881132a74"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Publish a Video",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "shashi second video",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "shashi desc 2",
+									"type": "text"
+								},
+								{
+									"key": "videoFile",
+									"type": "file",
+									"src": "/D:/BackendProject/Z-test-images/video-4.mp4"
+								},
+								{
+									"key": "thumbnail",
+									"type": "file",
+									"src": "/D:/BackendProject/Z-test-images/thumbnail-2.jpeg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{server}}/video/",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"video",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Video by Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server}}/video/:videoId",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"video",
+								":videoId"
+							],
+							"variable": [
+								{
+									"key": "videoId",
+									"value": "674082e6cbf7c46881132a93"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Video",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{server}}/video/:videoId",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"video",
+								":videoId"
+							],
+							"variable": [
+								{
+									"key": "videoId",
+									"value": "6740834ccbf7c46881132a96"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Video",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "shashi first video",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "shashi desc 1",
+									"type": "text"
+								},
+								{
+									"key": "thumbnail",
+									"type": "file",
+									"src": "/D:/BackendProject/Z-test-images/thumbnail-2.jpeg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{server}}/video/:videoId",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"video",
+								":videoId"
+							],
+							"variable": [
+								{
+									"key": "videoId",
+									"value": "674082e6cbf7c46881132a93"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Toggle Publish Status",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{server}}/video/toggle/publish/:videoId",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"video",
+								"toggle",
+								"publish",
+								":videoId"
+							],
+							"variable": [
+								{
+									"key": "videoId",
+									"value": "674082e6cbf7c46881132a93"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Dashboard",
+			"item": [
+				{
+					"name": "Channel Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server}}/dashboard/stats",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"dashboard",
+								"stats"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Channel Videos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server}}/dashboard/videos",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"dashboard",
+								"videos"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "server",
+			"value": "http://localhost:8000"
+		}
+	]
+}

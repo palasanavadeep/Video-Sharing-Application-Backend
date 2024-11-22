@@ -56,7 +56,7 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
         // lookup for videos in playlist
         {
             $lookup : {
-                form : "videos",
+                from : "videos",
                 localField : "videos",
                 foreignField : "_id",
                 as : "videos",
@@ -140,16 +140,17 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
 
     ]);
 
-    if(!playlists){
-        throw new ApiError(401,"Error in Fetching playlists");
-    }
+    // if(playlists.length === 0 ){
+    //     throw new ApiError(401,"Error in Fetching playlists");
+    // }
 
     return res
         .status(200)
         .json(new ApiResponse(
             200,
             playlists,
-            "User Playlists Fetched Successfully"
+            playlists.length ===0 ? "No playlist Found"
+                :"User Playlists Fetched Successfully"
         ))
 
 })
@@ -173,7 +174,7 @@ const getPlaylistById = asyncHandler(async (req, res) => {
         },
         {
             $lookup : {
-                form : "videos",
+                from : "videos",
                 localField : "videos",
                 foreignField : "_id",
                 as : "videos",
@@ -259,13 +260,14 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
         throw new ApiError(401,"Playlist not found");
     }
 
-    if(playlist.owner !== req.user._id){
+    if(playlist.owner.toString() !== req.user._id.toString()){
         throw new ApiError(401,"You are Not Owner of Playlist.! Can't edit Playlist");
     }
 
     const checkIfVideoAlreadyExistInPlaylist = playlist.videos
-        .filter((video) => video.toString() === videoId)
+        .filter((video) => video.equals(new mongoose.Types.ObjectId(videoId)))
 
+    console.log(typeof Object.entries(playlist.videos) + "  values are "+  playlist.videos);
     if(checkIfVideoAlreadyExistInPlaylist.length > 0){
         throw new ApiError(401,"Video already exists in Playlist");
     }
@@ -310,7 +312,7 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
         throw new ApiError(401,"Playlist not found");
     }
 
-    if(playlist.owner !== req.user._id){
+    if(playlist.owner.toString() !== req.user._id.toString()){
         throw new ApiError(401,"You are Not Owner of Playlist.! Can't Delete Playlist");
     }
 
@@ -359,7 +361,7 @@ const deletePlaylist = asyncHandler(async (req, res) => {
         throw new ApiError(401,"Playlist not found")
     }
 
-    if(check.owner !== req.user._id){
+    if(check.owner.toString() !== req.user._id.toString()){
         throw new ApiError(401,"You don't have access to Delete this Playlist");
     }
 
@@ -391,7 +393,7 @@ const updatePlaylist = asyncHandler(async (req, res) => {
     }
     const playlist = await Playlist.findById(playlistId);
 
-    if(playlist.owner !== req.user._id){
+    if(playlist.owner.toString() !== req.user._id.toString()){
         throw new ApiError(401,"You are not Authorized to Update this Playlist")
     }
 

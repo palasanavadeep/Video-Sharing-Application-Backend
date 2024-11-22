@@ -11,7 +11,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     // TODO: toggle subscription
 
     if(!channelId || !isValidObjectId(channelId)){
-        throw new Error("Invalid channelId.!")
+        throw new ApiError(401,"Invalid channelId.!")
     }
 
     const isSubscribed = await Subscription.findOne({
@@ -59,7 +59,7 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
     const {subscriberId} = req.params
 
     if(!subscriberId || !isValidObjectId(subscriberId)){
-        throw new Error("Invalid subscriberId.!")
+        throw new ApiError(401,"Invalid subscriberId.!")
     }
 
     const subscribers = await Subscription.aggregate([
@@ -115,16 +115,16 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
 
 // controller to return channel list to which user has subscribed
 const getSubscribedChannels = asyncHandler(async (req, res) => {
-    const { subscriberId } = req.params
+    const { channelId } = req.params
 
-    if(!subscriberId || !isValidObjectId(subscriberId)){
-        throw new Error("Invalid subscriberId.!");
+    if(!channelId || !isValidObjectId(channelId)){
+        throw new ApiError(401,"Invalid subscriberId.!");
     }
 
     const subscribedChannels = await Subscription.aggregate([
         {
             $match : {
-                subscriber : new mongoose.Types.ObjectId(subscriberId)
+                subscriber : new mongoose.Types.ObjectId(channelId)
             }
         },
         {
@@ -168,7 +168,7 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
         .json(new ApiResponse(
             200,
             subscribedChannels,
-            "Subscribed Channels fetched Successfully"
+            subscribedChannels?"No channels Subscribed ":"Subscribed Channels fetched Successfully"
         ))
 })
 
