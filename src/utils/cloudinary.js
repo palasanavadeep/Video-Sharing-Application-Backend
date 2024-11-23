@@ -45,4 +45,21 @@ const deleteFromCloudinary = async(cloudinaryFilePath) => {
     }
 }
 
-export {uploadOnCloudinary , deleteFromCloudinary}
+const deleteVideoFromCloudinary = async(cloudinaryFilePath) => {
+
+    if(!cloudinaryFilePath){
+        return null;
+    }
+    try{
+        // select filename without url // file public id
+        let fileName = cloudinaryFilePath.split("/").pop().split('.')[0];
+
+        return  await cloudinary.uploader.destroy(fileName,{resource_type : "video"});
+
+    }catch(error){
+        console.log("Error in deleteFromCloudinary");
+        return null;
+    }
+}
+
+export {uploadOnCloudinary , deleteFromCloudinary , deleteVideoFromCloudinary}

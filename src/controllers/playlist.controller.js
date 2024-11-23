@@ -260,14 +260,20 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
         throw new ApiError(401,"Playlist not found");
     }
 
-    if(playlist.owner.toString() !== req.user._id.toString()){
+    if(!(playlist.owner).equals(req.user._id)){
         throw new ApiError(401,"You are Not Owner of Playlist.! Can't edit Playlist");
     }
 
-    const checkIfVideoAlreadyExistInPlaylist = playlist.videos
-        .filter((video) => video.equals(new mongoose.Types.ObjectId(videoId)))
+    // console.log(!(playlist.owner).equals(req.user._id))
+    // console.log(typeof playlist.owner)
+    // console.log(typeof req.user._id)
+    // console.log(playlist.owner.toString() === req.user._id.toString());
 
-    console.log(typeof Object.entries(playlist.videos) + "  values are "+  playlist.videos);
+    const checkIfVideoAlreadyExistInPlaylist = playlist.videos
+        .filter((video) => video.toString() === videoId)
+
+    // console.log(typeof Object.entries(playlist.videos) + "  values are "+  playlist.videos);
+
     if(checkIfVideoAlreadyExistInPlaylist.length > 0){
         throw new ApiError(401,"Video already exists in Playlist");
     }
@@ -276,7 +282,7 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
         playlistId,
         {
             $set : {
-                videos : [...playlist.videos,new mongoose.Types.ObjectId(playlistId)],
+                videos : [videoId],
             }
         },
         {
@@ -401,30 +407,8 @@ const updatePlaylist = asyncHandler(async (req, res) => {
         playlistId,
         {
             $set : {
-                name : {
-                    $cond : {
-                        if : {
-                            $and : [
-                                { $ne : ["$name",null]},
-                                { $ne: ["$name",""]}
-                            ]
-                        },
-                        then : name.trim(),
-                        else : "$name"
-                    }
-                },
-                description : {
-                    $cond : {
-                        if : {
-                            $and : [
-                                { $ne : ["$description",null]},
-                                { $ne: ["$description",""]}
-                            ]
-                        },
-                        then : description.trim(),
-                        else : "$description"
-                    }
-                }
+                name: name.trim(),
+                description: description.trim(),
             }
         },
         {

@@ -3,7 +3,7 @@ import {Video} from "../models/video.model.js"
 import {User} from "../models/user.model.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
-import {uploadOnCloudinary,deleteFromCloudinary} from "../utils/cloudinary.js"
+import {uploadOnCloudinary, deleteFromCloudinary, deleteVideoFromCloudinary} from "../utils/cloudinary.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 import {loginUser} from "./user.controller.js";
 
@@ -314,7 +314,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
     if(!delOldVideoThumbnail){
         throw new ApiError(500,"Error in deleting Old Thumbnail");
     }
-    const delOldVideoFile = await deleteFromCloudinary(video.videoFile);
+    const delOldVideoFile = await deleteVideoFromCloudinary(video.videoFile);
     if (!delOldVideoFile){
         throw new ApiError(500,"Error in deleting Old Video File");
     }
