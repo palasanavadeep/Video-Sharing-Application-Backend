@@ -19,18 +19,44 @@ const getChannelStats = asyncHandler(async (req, res) => {
         },
         {
             $group : {
-                _id : "$videoFile",
+                _id : null,
                 totalVideos : {
                     $sum : 1
                 },
                 totalViews : {
                     $sum : "$views"
-                }
+                },
+
             }
         },
         {
+            $lookup : {
+                from : "users",
+                localField : "owner",
+                foreignField : "_id",
+                as : "channel",
+                pipeline : [
+                    {
+                        $project : {
+                            username : 1,
+                            fullName : 1,
+                            avatar : 1,
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $addFields : {
+                channel : { $first : "$channel",}
+            }
+        },
+
+        {
             $project : {
                 // videoFiles : 1,
+                _id : 0,
+                channel : 1,
                 totalVideos : 1,
                 totalViews : 1,
             }
@@ -168,21 +194,46 @@ const getChannelVideos = asyncHandler(async (req, res) => {
             }
         },
         {
+            $lookup : {
+                from : "likes",
+                localField : "_id",
+                foreignField : "video",
+                as : "likes",
+            }
+        },
+        {
+            $lookup : {
+                from : "comments",
+                localField : "_id",
+                foreignField : "video",
+                as : "comments",
+            }
+        },
+        {
             $addFields : {
                 owner : {
                     $first : "$owner",
-                }
+                },
+                likes: { $size: "$likes" }, // Count likes
+                comments: { $size: "$comments" }, // Count comments
+
             }
         },
         {
             $project : {
+                likes : 1,
+                comments : 1,
+                // totalLikes : 1,
+                // totalComments : 1,
                 owner : 1,
                 videoFile : 1,
                 thumbnail : 1,
                 title : 1,
-                duration : 1,
-                views : 1,
+                description : 1,
+                // duration : 0,
+                // views : 0,
                 published : 1,
+                createdAt : 1,
             }
         }
     ]);

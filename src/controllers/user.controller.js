@@ -4,7 +4,7 @@ import {ApiResponse} from "../utils/ApiResponse.js";
 import {User} from "../models/user.model.js"
 import {deleteFromCloudinary, uploadOnCloudinary} from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
+import mongoose, {isValidObjectId} from "mongoose";
 
 const generateRefreshAndAccessToken = async(userId)=>{
     try{
@@ -118,7 +118,7 @@ const loginUser = asyncHandler(async (req,res) => {
     // send tokens through cookies
 
     // store user details from request
-    const {username, email, password} = req.body;
+    const {username='', email='', password} = req.body;
 
     if(!username && !email ){
         throw new ApiError(400,"Username or Email is Required");
@@ -441,16 +441,16 @@ const updateUserCoverImage = asyncHandler(async(req,res) => {
 })
 
 const getUserChannelProfile = asyncHandler(async(req,res) => {
-    const {username} = req.params;
+    const {userId} = req.params;
 
-    if(!username?.trim()){
-        throw new ApiError(401,'Please Provide username');
+    if(!userId.trim() && !isValidObjectId(userId)){
+        throw new ApiError(401,'Please Provide Valid userId ');
     }
 
     const channel = await User.aggregate([
         {
             $match:{
-                username : username.toLowerCase()
+                _id : new mongoose.Types.ObjectId(userId),
             }
         },
         {
@@ -517,6 +517,17 @@ const getUserChannelProfile = asyncHandler(async(req,res) => {
 })
 
 const getUserWatchHistory =  asyncHandler(async (req,res) => {
+
+    let {
+        page = 1,
+        limit = 10,
+
+    } = req.query;
+    page = parseInt(page);
+    limit = parseInt(limit);
+
+
+    // console.log(page + " "+ limit);
     const user = await  User.aggregate([
         {
             $match : {
@@ -539,6 +550,7 @@ const getUserWatchHistory =  asyncHandler(async (req,res) => {
                             pipeline : [
                                 {
                                     $project : {
+                                        avatar : 1,
                                         username : 1,
                                         fullName : 1,
                                         email : 1
@@ -554,10 +566,18 @@ const getUserWatchHistory =  asyncHandler(async (req,res) => {
                                 $first : "$owner"
                             }
                         }
+                    },
+                    {
+                        $skip : (page - 1) * limit,
+                    },
+                    {
+                        $limit : limit,
                     }
                 ]
             }
-        }
+        },
+
+
     ]);
 
 

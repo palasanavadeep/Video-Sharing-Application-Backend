@@ -9,19 +9,19 @@ import {Tweet} from "../models/tweet.model.js";
 const getVideoComments = asyncHandler(async (req, res) => {
     //TODO: get all comments for a video
     const {videoId} = req.params
-    let {page = 1, limit = 10} = req.query;
-
-    page = parseInt(page);
-    limit = parseInt(limit)
+    // let {page = 1, limit = 10} = req.query;
+    //
+    // page = parseInt(page);
+    // limit = parseInt(limit);
 
     if(!videoId || !isValidObjectId(videoId)){
         throw new ApiError(401,"Invalid videoId or videoId must be provided!")
     }
-    const docs = await Comment.countDocuments({video : videoId})
+    // const docs = await Comment.countDocuments({video : videoId})
 
     // console.log(docs)
-    let skip = (page - 1) * limit;
-    skip = (skip <= docs) ? skip : 0;
+    // let skip = (page - 1) * limit;
+    // skip = (skip <= docs) ? skip : 0;
 
     // check ------------
     const comments  = await Comment.aggregate([
@@ -39,7 +39,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
                 pipeline : [
                     {
                         $project : {
-                            _id : 0,
+                            _id : 1,
                             username : 1,
                             avatar : 1,
                             fullName : 1,
@@ -50,29 +50,48 @@ const getVideoComments = asyncHandler(async (req, res) => {
             }
         },
         {
+            $unwind : "$createdBy",
+        },
+        {
             $addFields : {
-                createdBy : {
-                    $first : "$createdBy",
+                // createdBy : {
+                //     $first : "$createdBy",
+                // },
+                isMyComment : {
+                    $cond: {
+                        if: { $eq: [req.user?._id , "$createdBy._id"] },
+                        then: true,
+                        else: false,
+                    }
                 }
+
             }
         },
         // {
         //     $unwind : "$createdBy",
         // },
         {
-            $project : {
-                content : 1,
-                createdBy : 1
+            $sort : {
+                createdAt : -1,
             }
         },
         {
-            $skip : skip,
+            $project : {
+                content : 1,
+                createdBy : 1,
+                createdAt : 1,
+                isMyComment : 1,
+            }
         },
-        {
-            $limit : limit
-        }
+        // {
+        //     $skip : skip,
+        // },
+        // {
+        //     $limit : limit
+        // }
     ]);
-    // console.log(comments)
+    // console.log(req.user._id);
+
     if(comments.length === 0){
         return res.status(200)
             .json(new ApiResponse(

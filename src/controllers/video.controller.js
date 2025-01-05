@@ -7,33 +7,124 @@ import {uploadOnCloudinary, deleteFromCloudinary, deleteVideoFromCloudinary} fro
 import {asyncHandler} from "../utils/asyncHandler.js"
 import {loginUser} from "./user.controller.js";
 
+// fetch all videos of a  channel
+const getChannelVideos = asyncHandler(async(req,res) => {
+    let { page="1",
+        limit="10",
+        sortBy = 'duration',
+        sortType = 'asc',
+        channelId =''
+    } = req.query
+    limit = parseInt(limit)
+    page = parseInt(page)
+    if((!channelId || !isValidObjectId(channelId))){
+        throw new ApiError(401,"Invalid userId or userId must be provided!")
+    }
+    const videos = await Video.aggregate([
+        {
+            $match : {
+                owner : new mongoose.Types.ObjectId(channelId) || ""
+            }
+        },
+        {
+            $lookup : {
+                from : "users",
+                localField : "owner",
+                foreignField : "_id",
+                as : "owner",
+                pipeline : [
+                    {
+                        $project : {
+                            username : 1,
+                            fullName : 1,
+                            avatar : 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $unwind : "$owner"
+        },
+        {
+            $project : {
+                videoFile : 1,
+                thumbnail : 1,
+                owner : 1,
+                title : 1,
+                duration : 1,
+                description : 1,
+                createdAt : 1,
+                views : 1,
+            }
+        },
+        {
+            $sort : {
+                [sortBy] : sortType === "asc" ? 1 : -1
+            }
+        },
+        {
+            $skip : (page - 1) * limit,
+        },
+
+        {
+            $limit : limit
+        }
+    ]);
+
+
+    return res.status(200)
+        .json(new ApiResponse(
+            200,
+            videos,
+            videos?"Videos Fetched Successfully" : "Channel Doesn't have any Videos"
+        ))
+})
+
 
 const getAllVideos = asyncHandler(async (req, res) => {
     let { page=1,
         limit=10,
         query="",
-        sortBy,
-        sortType,
-        userId } = req.query
+        sortBy = 'duration',
+        sortType = 'asc',
+        userId =''
+    } = req.query
     //TODO: get all videos based on query, sort, pagination
     limit = parseInt(limit)
     page = parseInt(page)
+
+    if (!query){
+        if (userId && !isValidObjectId(userId)){
+            throw new ApiError(401,"Invalid userId or userId!");
+        }
+    }
+
+    // if((!userId || !isValidObjectId(userId))){
+    //     throw new ApiError(401,"Invalid userId or userId must be provided!")
+    // }
     // console.log(typeof limit)
     const videos = await Video.aggregate([
         {
             $match : {
-               $or : [
-                   {
-                       title : { $regex : query, $options: "i" },
-                   },
-                   {
-                       description : { $regex : query, $options: "i" },
-                   },
-                   // check -----
-                   {
-                       owner : userId || "",
-                   }
-               ]
+                $and : [
+                    {
+                        published : true,
+                    },
+                    {
+                        $or : [
+                            {
+                                title : { $regex : query, $options: "i" },
+                            },
+                            {
+                                description : { $regex : query, $options: "i" },
+                            },
+                            {
+                                owner: userId ? new mongoose.Types.ObjectId(userId) : null,
+                            },
+                        ]
+                    }
+                ]
             }
         },
         {
@@ -71,6 +162,8 @@ const getAllVideos = asyncHandler(async (req, res) => {
                 title : 1,
                 duration : 1,
                 description : 1,
+                createdAt : 1,
+                views : 1,
             }
         },
         {
@@ -158,40 +251,56 @@ const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params
     //TODO: get video by id
 
+    if (!req.user?._id){
+        throw  new ApiError(401,"User Not Found!");
+    }
+
     if(!videoId || !isValidObjectId(videoId)){
         throw new ApiError(402,"provide a valid videoId.");
     }
 
-    await Video.findByIdAndUpdate(
-        videoId,
-        {
-           $inc : {
-               views : 1
-           }
-        },
-        {
-            new :true
-        }
-    )
-
+    // old
     const video = await Video.aggregate([
         {
             $match : {
                 _id : new mongoose.Types.ObjectId(videoId),
             }
         },
+        // {
+        //     $lookup : {
+        //         from : "users",
+        //         localField : "owner",
+        //         foreignField : "_id",
+        //         as : "owner",
+        //         pipeline : [
+        //             {
+        //                 $project : {
+        //                     username : 1,
+        //                     avatar : 1,
+        //                     fullName : 1,
+        //                 }
+        //             }
+        //         ]
+        //     }
+        // },
+        // {
+        //     $addFields : {
+        //         owner : {
+        //             $first : "$owner",
+        //         }
+        //     }
+        // },
         {
             $lookup : {
-                from : "users",
-                localField : "videoFile",
-                foreignField : "_id",
-                as : "owner",
+                from : "likes",
+                localField : "_id",
+                foreignField : "video",
+                as : "likes",
                 pipeline : [
                     {
                         $project : {
-                            username : 1,
-                            avatar : 1,
-                            fullName : 1,
+                            video : 1,
+                            likedBy : 1,
                         }
                     }
                 ]
@@ -199,13 +308,23 @@ const getVideoById = asyncHandler(async (req, res) => {
         },
         {
             $addFields : {
-                owner : {
-                    $first : "$owner",
+                videoLikes : {
+                    $size : "$likes",
+                },
+                isLiked : {
+                    $cond : {
+                        if : { $in : [req.user._id , "$likes.likedBy"]},
+                        then : true,
+                        else : false,
+                    }
                 }
             }
         },
+
         {
             $project : {
+                videoLikes : 1,
+                isLiked : 1,
                 owner : 1,
                 videoFile : 1,
                 thumbnail : 1,
@@ -214,13 +333,51 @@ const getVideoById = asyncHandler(async (req, res) => {
                 description : 1,
                 views : 1,
                 createdAt : 1,
+                published : 1
             }
         }
 
     ])
+
+    // new
+    // const video = await Video.findById(videoId);
+
     if(!video){
         throw  new ApiError(401,"Video not found");
     }
+
+    // if (!video.published){
+    //     throw  new ApiError(401,"Publish Status is False Unable to access Video");
+    // }
+
+    await Video.findByIdAndUpdate(
+        videoId,
+        {
+            $inc : {
+                views : 1
+            }
+        },
+        {
+            new :true
+        }
+    )
+
+    const updatedWatchHistory = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $addToSet :{
+                watchHistory : videoId,
+            }
+        },
+        {
+            new :true
+        }
+    );
+
+    if (!updatedWatchHistory){
+        throw  new ApiError(500,"Error in Updating Video on DB");
+    }
+
 
     return res
         .status(200)
@@ -239,6 +396,8 @@ const updateVideo = asyncHandler(async (req, res) => {
 
     const thumbnailLocalPath = req.file?.path;
 
+    // console.log(thumbnailLocalPath)
+
     if(!thumbnailLocalPath && !title.trim() && !description.trim()){
         throw new ApiError(400,"All fields can't be Empty p" +
             "lease provide any field to update ");
@@ -253,16 +412,19 @@ const updateVideo = asyncHandler(async (req, res) => {
     if(videoCheck.owner.toString() !== req.user?._id.toString()){
         throw new ApiError(401,"You are not Authorized to Update this Video");
     }
+    let cloudinaryThumbnail,delResponse;
+    if(thumbnailLocalPath){
+        cloudinaryThumbnail = await uploadOnCloudinary(thumbnailLocalPath);
+        if (!cloudinaryThumbnail?.url){
+            throw  new ApiError(500,"Error in uploading Thumbnail to Cloudinary");
+        }
 
-    const cloudinaryThumbnail = await uploadOnCloudinary(thumbnailLocalPath);
-    if (!cloudinaryThumbnail?.url){
-        throw  new ApiError(500,"Error in uploading Thumbnail to Cloudinary");
-    }
+        delResponse = await deleteFromCloudinary(videoCheck.thumbnail);
+        // console.log(delResponse);
 
-    const delResponse = await deleteFromCloudinary(videoCheck.thumbnail);
-    console.log(delResponse)
-    if(!delResponse){
-        throw new ApiError(500,"Error in deleting Old thumbnail from Cloudinary");
+        if(!delResponse){
+            throw new ApiError(500,"Error in deleting Old thumbnail from Cloudinary");
+        }
     }
 
     title = title.trim() ? title : videoCheck.title;
@@ -274,7 +436,7 @@ const updateVideo = asyncHandler(async (req, res) => {
             $set : {
                 title,
                 description,
-                thumbnail : cloudinaryThumbnail.url
+                thumbnail : thumbnailLocalPath ?  cloudinaryThumbnail.url : videoCheck.thumbnail,
             }
         },
         {
@@ -387,5 +549,6 @@ export {
     getVideoById,
     updateVideo,
     deleteVideo,
-    togglePublishStatus
+    togglePublishStatus,
+    getChannelVideos,
 }

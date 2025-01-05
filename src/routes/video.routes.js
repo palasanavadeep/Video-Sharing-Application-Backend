@@ -6,6 +6,7 @@ import {
     publishAVideo,
     togglePublishStatus,
     updateVideo,
+    getChannelVideos,
 } from "../controllers/video.controller.js"
 import {verifyJWT} from "../middlewares/auth.middleware.js"
 import {upload} from "../middlewares/multer.middleware.js"
@@ -30,6 +31,7 @@ router
         ]),
         publishAVideo
     );
+router.route("/channel").get(getChannelVideos);
 
 router
     .route("/:videoId")
@@ -38,5 +40,7 @@ router
     .patch(upload.single("thumbnail"), updateVideo);
 
 router.route("/toggle/publish/:videoId").patch(togglePublishStatus);
+
+
 
 export default router

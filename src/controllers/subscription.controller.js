@@ -56,16 +56,16 @@ const toggleSubscription = asyncHandler(async (req, res) => {
 
 // controller to return subscriber list of a channel
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
-    const {subscriberId} = req.params
+    const {channelId} = req.params
 
-    if(!subscriberId || !isValidObjectId(subscriberId)){
+    if(!channelId || !isValidObjectId(channelId)){
         throw new ApiError(401,"Invalid subscriberId.!")
     }
 
     const subscribers = await Subscription.aggregate([
         {
             $match : {
-                channel : new mongoose.Types.ObjectId(subscriberId)
+                channel : new mongoose.Types.ObjectId(channelId)
             }
         },
         {
@@ -79,6 +79,7 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
                         $project : {
                             username : 1,
                             avatar : 1,
+                            fullName : 1
                         }
                     }
                 ]
@@ -87,7 +88,7 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
         {
             $addFields : {
                 subscribers : {
-                    $first : "$subscribers",
+                    $first : "$subscriberList",
                 }
             }
         },
@@ -132,7 +133,7 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
                 from : "users",
                 localField : "channel",
                 foreignField : "_id",
-                as : "channels",
+                as : "channel",
                 pipeline : [
                     {
                         $project : {
@@ -144,16 +145,32 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
                 ]
             }
         },
+        // {
+        //     $addFields : {
+        //         isSubscribed : {
+        //             $cond : {
+        //                 if : {$in : [req.user?._id,"$channel.channel"]},
+        //                 then : true,
+        //                 else : false
+        //             }
+        //         },
+        //     }
+        // },
+        // {
+        //     $addFields : {
+        //         channels : {
+        //             $first : "$channel",
+        //         }
+        //     }
+        // },
         {
-            $addFields : {
-                channels : {
-                    $first : "$channels",
-                }
-            }
+            $unwind : "$channel"
         },
         {
             $project : {
-                channels : 1,
+                _id : 0,
+                isSubscribed : 1,
+                channel : 1,
                 createdAt : 1
             }
         }
@@ -168,7 +185,7 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
         .json(new ApiResponse(
             200,
             subscribedChannels,
-            subscribedChannels?"No channels Subscribed ":"Subscribed Channels fetched Successfully"
+            !subscribedChannels?"No channels Subscribed ":"Subscribed Channels fetched Successfully"
         ))
 })
 

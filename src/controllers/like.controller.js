@@ -149,6 +149,15 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
 
 const getLikedVideos = asyncHandler(async (req, res) => {
 
+    let { page=1,
+        limit=10,
+        sortBy = 'duration',
+        // sortType = 'asc',
+        // userId =''
+    } = req.query;
+    limit = parseInt(limit);
+    page = parseInt(page);
+
     if(!req.user?._id){
         throw new ApiError(401,"Unauthorized request.!");
     }
@@ -192,7 +201,7 @@ const getLikedVideos = asyncHandler(async (req, res) => {
                             from : "users",
                             localField : "owner",
                             foreignField : "_id",
-                            as : "videoOwner",
+                            as : "owner",
                             pipeline : [
                                 {
                                     $project : {
@@ -206,19 +215,20 @@ const getLikedVideos = asyncHandler(async (req, res) => {
                     },
                     {
                         $addFields : {
-                            videoOwner : {
-                                $first : "$videoOwner",
+                            owner : {
+                                $first : "$owner",
                             }
                         }
                     },
                     {
                         $project: {
-                            videoOwner : 1,
+                            owner : 1,
                             videoFile : 1,
                             thumbnail : 1,
                             title : 1,
                             duration : 1,
-
+                            createdAt : 1,
+                            views : 1,
                         }
                     }
                 ]
@@ -237,6 +247,13 @@ const getLikedVideos = asyncHandler(async (req, res) => {
         //         }
         //     }
         // },
+        {
+            $skip : (page - 1) * limit,
+        },
+
+        {
+            $limit : limit
+        },
         {
             $project : {
                 _id : 0,

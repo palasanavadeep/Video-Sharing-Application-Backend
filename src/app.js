@@ -31,14 +31,14 @@ import videoRouter from './routes/video.routes.js';
 import dashboardRouter from "./routes/dashboard.routes.js";
 
 
-app.use("/user",userRouter);
-app.use('/tweets',tweetRouter);
-app.use("/comments",commentRouter);
-app.use("/like",likeRouter);
-app.use("/playlist",playlistRouter);
-app.use("/subscription",subscriptionRouter);
-app.use("/video",videoRouter);
-app.use("/dashboard",dashboardRouter);
+app.use("/api/user",userRouter);
+app.use('/api/tweets',tweetRouter);
+app.use("/api/comments",commentRouter);
+app.use("/api/like",likeRouter);
+app.use("/api/playlist",playlistRouter);
+app.use("/api/subscription",subscriptionRouter);
+app.use("/api/video",videoRouter);
+app.use("/api/dashboard",dashboardRouter);
 
 
 export {app};
