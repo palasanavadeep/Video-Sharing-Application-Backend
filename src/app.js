@@ -12,10 +12,23 @@ app.on("error" ,(err)=>{
 app.options('*', cors()); // This allows handling of OPTIONS requests
 
 
+// app.use(cors({
+//     origin : [process.env.CORS_ORIGN,"http://localhost:5173"],
+//     credentials : true
+// }))
+
+// CORS middleware - apply before any routes
 app.use(cors({
-    origin : [process.env.CORS_ORIGN,"http://localhost:5173"],
-    credentials : true
-}))
+    origin: (origin, callback) => {
+        // Allow only specified origins, block others
+        if (allowedOrigins.includes(origin) || !origin) { // Allow localhost during development without origin
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'), false);
+        }
+    },
+    credentials: true, // Allow credentials (cookies, HTTP authentication)
+}));
 
 // config app about input data type 
 app.use(express.json({limit : "16kb"}));
