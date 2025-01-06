@@ -9,6 +9,9 @@ app.on("error" ,(err)=>{
     throw err
 })
 
+const allowedOrigins = [process.env.CORS_ORIGIN, "http://localhost:5173", "https://drush.vercel.app"];
+
+
 app.options('*', cors()); // This allows handling of OPTIONS requests
 
 
