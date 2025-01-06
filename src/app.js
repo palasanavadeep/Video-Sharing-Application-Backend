@@ -10,7 +10,7 @@ app.on("error" ,(err)=>{
 })
 
 app.use(cors({
-    origin : process.env.CORS_ORIGN,
+    origin : [process.env.CORS_ORIGN,"http://localhost:5173"],
     credentials : true
 }))
 
