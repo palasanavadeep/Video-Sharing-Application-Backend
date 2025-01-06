@@ -9,6 +9,9 @@ app.on("error" ,(err)=>{
     throw err
 })
 
+app.options('*', cors()); // This allows handling of OPTIONS requests
+
+
 app.use(cors({
     origin : [process.env.CORS_ORIGN,"http://localhost:5173"],
     credentials : true
