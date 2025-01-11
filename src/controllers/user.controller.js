@@ -1,10 +1,11 @@
 import {asyncHandler} from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js";
-import {User} from "../models/user.model.js"
+import {User} from "../models/user.model.js";
 import {deleteFromCloudinary, uploadOnCloudinary} from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
 import mongoose, {isValidObjectId} from "mongoose";
+import {Video} from "../models/video.model.js";
 
 const generateRefreshAndAccessToken = async(userId)=>{
     try{
@@ -594,7 +595,69 @@ const getUserWatchHistory =  asyncHandler(async (req,res) => {
 
 })
 
+const checkUsernameAvailability = asyncHandler(async (req,res) => {
+    const {username} = req.params;
+
+    if(!username.trim()){
+        throw new ApiError(401,'Please Provide Valid username ');
+    }
+
+    const user = await User.findOne({username});
+    const isUsernameAvailable =  !user;
+    return res.status(200).json(
+        new ApiResponse(200,
+            isUsernameAvailable,
+            "Username"+ (isUsernameAvailable ? " available": " not available")));
+})
+
+const search = asyncHandler(async (req,res) => {
+
+    const {query} = req.params;
+
+    if(!query){
+        throw new ApiError(400,"Please Provide Valid query");
+    }
+
+    // const userResults = await User.aggregate([
+    //     {
+    //         $match : {}
+    //     },
+    //     {
+    //         $lookup : {
+    //             from
+    //         }
+    //     }
+    // ])
+
+    const userResults = await User.find({
+        $or : [
+            { username : { $regex: query.trim(), $options: 'i' } },
+            { fullName : { $regex: query.trim(), $options: 'i' } }
+        ]
+    });
+
+    const videoResults = await Video.find({
+        $or : [
+            { title : { $regex: query.trim(), $options: 'i' } },
+            { description : { $regex: query.trim(), $options: 'i' } }
+        ]
+    });
+
+    return res
+        .status(200)
+        .json(new ApiResponse(
+            200,
+            {
+                users : userResults,
+                videos : videoResults
+            },
+            "Successfully fetched results"
+        ));
+
+})
+
 export {
+    search,
     registerUser,
     loginUser,
     logoutUser,
@@ -605,5 +668,6 @@ export {
     updateUserAvatar,
     updateUserCoverImage,
     getUserChannelProfile,
-    getUserWatchHistory
+    getUserWatchHistory,
+    checkUsernameAvailability
 }

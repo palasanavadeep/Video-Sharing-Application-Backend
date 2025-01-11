@@ -2,7 +2,7 @@ import {Router} from "express";
 import {loginUser, logoutUser, refreshAccessToken, 
     registerUser,changePassword,getCurrentUser,updateAccountDetails,
     updateUserAvatar, updateUserCoverImage,getUserChannelProfile,
-    getUserWatchHistory
+    getUserWatchHistory , checkUsernameAvailability , search ,
 } from "../controllers/user.controller.js";
 import {upload} from "../middlewares/multer.middleware.js";
 import {verifyJWT} from "../middlewares/auth.middleware.js";
@@ -48,6 +48,10 @@ userRouter.route('/update-coverImage').patch(
 userRouter.route('/c/:userId').get(verifyJWT,getUserChannelProfile);
 
 userRouter.route('/watch-history').get(verifyJWT,getUserWatchHistory);
+
+userRouter.route("/check-username/:username").get(checkUsernameAvailability);
+
+userRouter.route("/search/:query").get(search);
 
 
 export default userRouter;
