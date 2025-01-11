@@ -150,7 +150,10 @@ const loginUser = asyncHandler(async (req,res) => {
     const  options = {
         httpOnly : true,
         secure : true,
-        sameSite: 'None'
+        sameSite: 'none',
+        domain: 'drush-backend.vercel.app',
+        path: '/',
+        maxAge: 24 * 60 * 60 * 1000 // 1 day
     }
 
     return res.status(200)
